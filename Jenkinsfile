@@ -19,11 +19,11 @@ pipeline{
         jdk 'jdk17'
         nodejs 'node20'
     }
-    environment {
-        SCANNER_HOME=tool 'sonar-scanner'
-    }
+    // environment {
+    //     SCANNER_HOME=tool 'sonar-scanner'
+    // }
     stages{
-        
+
         stage('Clean Workspace'){
             steps{
                 cleanWorkspace()
