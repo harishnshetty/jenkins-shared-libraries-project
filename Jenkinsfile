@@ -30,6 +30,8 @@ pipeline{
             }
         }
         stage('checkout from Git'){
+            when { expression { params.action == 'create'}}    
+
             steps{
                 checkoutGit(params.gitUrl, params.gitBranch)
             }
