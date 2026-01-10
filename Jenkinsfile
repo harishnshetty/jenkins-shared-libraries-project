@@ -89,7 +89,7 @@ pipeline{
                     --disableYarnAudit 
                     --disableNodeAudit 
                 ''',
-                odcInstallation: '$DCNAME',
+                odcInstallation: "$DCNAME",
                 dependencyCheckPublisher pattern: "**/dependency-check-report-${env.BUILD_NUMBER}.xml"
             }
         }
