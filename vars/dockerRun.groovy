@@ -1,4 +1,4 @@
 def call() {
-    sh 'docker rm -f $params.imageName || true'
-    sh 'docker run -d --name $params.imageName -p $EXPOSE_PORT:$CONTAINER_PORT $params.dockerHubUsername/$params.imageName:$params.${env.BUILD_NUMBER}'
+    sh "docker rm -f $env.dockerImageName || true"
+    sh "docker run -d --name $env.dockerImageName -p $EXPOSE_PORT:$CONTAINER_PORT $env.dockerHubUsername/$env.dockerImageName:$env.${env.BUILD_NUMBER}"
 }

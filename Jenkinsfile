@@ -108,19 +108,19 @@ pipeline{
         }
 
 
-        stage('Trivy Image Scan'){
-        when { expression { params.action == 'create'}}    
-            steps{
-                trivyImage()
-            }
-        }
+        // stage('Trivy Image Scan'){
+        // when { expression { params.action == 'create'}}    
+        //     steps{
+        //         trivyImage()
+        //     }
+        // }
 
-        stage('Docker Push To DockerHub'){
-        when { expression { params.action == 'create'}}    
-            steps{
-                dockerPush()
-            }
-        }
+        // stage('Docker Push To DockerHub'){
+        // when { expression { params.action == 'create'}}    
+        //     steps{
+        //         dockerPush()
+        //     }
+        // }
 
         stage('Docker Run Container'){
         when { expression { params.action == 'create'}}    
