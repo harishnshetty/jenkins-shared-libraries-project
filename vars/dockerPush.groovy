@@ -1,6 +1,6 @@
-def call(String dockerHubUsername, String imageName) {
+def call() {
    withDockerRegistry([url: 'https://index.docker.io/v1/', credentialsId: 'dockerhub-token']) {
-        sh "docker push ${dockerHubUsername}/${imageName}:latest"
-        sh "docker push ${dockerHubUsername}/${imageName}:${env.BUILD_NUMBER}"
+        sh "docker push ${env.dockerHubUsername}/${env.dockerImageName}:latest"
+        sh "docker push ${env.dockerHubUsername}/${env.dockerImageName}:${env.BUILD_NUMBER}"
     }
 }

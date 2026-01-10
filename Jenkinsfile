@@ -111,21 +111,21 @@ pipeline{
         stage('Trivy Image Scan'){
         when { expression { params.action == 'create'}}    
             steps{
-                trivyImage(params.dockerHubUsername, params.dockerImageName)
+                trivyImage()
             }
         }
 
         stage('Docker Push To DockerHub'){
         when { expression { params.action == 'create'}}    
             steps{
-                dockerPush(params.dockerHubUsername, params.dockerImageName)
+                dockerPush()
             }
         }
 
         stage('Docker Run Container'){
         when { expression { params.action == 'create'}}    
             steps{
-                dockerRun(params.dockerHubUsername, params.dockerImageName)
+                dockerRun()
             }
         }
 
