@@ -16,7 +16,7 @@ pipeline{
         string(name: 'projectKey', defaultValue: 'flipkart', description: 'Project Key')
 
         string(name: 'dockerHubUsername', defaultValue: 'harishnshetty', description: 'Docker Hub Username')
-        string(name: 'dockerImageName', defaultValue: 'flipkart-app', description: 'Docker Image Name')
+        string(name: 'dockerImageName', defaultValue: 'flipkartapp', description: 'Docker Image Name')
 
         string(name: 'gitUserConfigName', defaultValue: 'harishn', description: 'Git User Name')
         string(name: 'gitUserConfigEmail', defaultValue: 'harishn662@gmail.com', description: 'Git User Email')
