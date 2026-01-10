@@ -80,23 +80,23 @@ pipeline{
         }
 
 
-stage('OWASP FS SCAN') {
-    when { expression { params.action == 'create'} }
-    steps {
-        dependencyCheck(
-            odcInstallation: 'dp-check',
-            additionalArguments: '''
-                --scan .
-                --disableYarnAudit
-                --disableNodeAudit
-            '''
-        )
+// stage('OWASP FS SCAN') {
+//     when { expression { params.action == 'create'} }
+//     steps {
+//         dependencyCheck(
+//             odcInstallation: 'dp-check',
+//             additionalArguments: '''
+//                 --scan .
+//                 --disableYarnAudit
+//                 --disableNodeAudit
+//             '''
+//         )
 
-        dependencyCheckPublisher(
-            pattern: '**/dependency-check-report-*.xml'
-        )
-    }
-}
+//         dependencyCheckPublisher(
+//             pattern: '**/dependency-check-report-*.xml'
+//         )
+//     }
+// }
 
 
 
@@ -106,6 +106,7 @@ stage('OWASP FS SCAN') {
                 dockerBuild()
             }
         }
+
 
         stage('Trivy Image Scan'){
         when { expression { params.action == 'create'}}    
