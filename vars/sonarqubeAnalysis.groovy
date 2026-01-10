@@ -1,5 +1,5 @@
-def call(projectName, projectKey) {
+def call() {
     withSonarQubeEnv('sonar-server') {
-        sh """ $SCANNER_HOME/bin/sonar-scanner -Dsonar.projectName=${params.projectName} -Dsonar.projectKey=${params.projectKey} """
+        sh """ $SCANNER_HOME/bin/sonar-scanner -Dsonar.projectName=${env.projectName} -Dsonar.projectKey=${env.projectKey} """
     }
 }
