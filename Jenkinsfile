@@ -33,7 +33,6 @@ pipeline{
     }
     environment {
         SCANNER_HOME=tool 'sonar-scanner'
-        IMAGE_NAME = params.dockerImageName
         CONTAINER_PORT = 80
         EXPOSE_PORT = 80
     }
@@ -111,14 +110,14 @@ pipeline{
         stage('Docker Push To DockerHub'){
         when { expression { params.action == 'create'}}    
             steps{
-                dockerPush(params.dockerHubUsername, params.DockerImageName)
+                dockerPush(params.dockerHubUsername, params.dockerImageName)
             }
         }
 
         stage('Docker Run Container'){
         when { expression { params.action == 'create'}}    
             steps{
-                dockerRun(params.dockerHubUsername, params.DockerImageName)
+                dockerRun(params.dockerHubUsername, params.dockerImageName)
             }
         }
 
