@@ -33,7 +33,6 @@ pipeline{
     }
     environment {
         SCANNER_HOME = tool 'sonar-scanner'
-        DCNAME = tool 'dp-check'
         CONTAINER_PORT = 80
         EXPOSE_PORT = 80
     }
@@ -84,21 +83,21 @@ pipeline{
 stage('OWASP FS SCAN') {
     when { expression { params.action == 'create'} }
     steps {
-
         dependencyCheck(
+            odcInstallation: 'dp-check',
             additionalArguments: '''
                 --scan .
                 --disableYarnAudit
                 --disableNodeAudit
-            ''',
-            odcInstallation: "${DCNAME}"
+            '''
         )
 
         dependencyCheckPublisher(
-            pattern: "**/dependency-check-report-${env.BUILD_NUMBER}.xml"
+            pattern: '**/dependency-check-report-*.xml'
         )
     }
 }
+
 
 
         stage('Docker Build'){
