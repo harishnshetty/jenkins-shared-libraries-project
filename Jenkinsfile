@@ -81,18 +81,24 @@ pipeline{
         }
 
 
-        stage('OWASP FS SCAN') {
-            when { expression { params.action == 'create'}}    
-            steps {
-                dependencyCheck additionalArguments: '''
-                    --scan . 
-                    --disableYarnAudit 
-                    --disableNodeAudit 
-                ''',
-                odcInstallation: "$DCNAME",
-                dependencyCheckPublisher pattern: "**/dependency-check-report-${env.BUILD_NUMBER}.xml"
-            }
-        }
+stage('OWASP FS SCAN') {
+    when { expression { params.action == 'create'} }
+    steps {
+
+        dependencyCheck(
+            additionalArguments: '''
+                --scan .
+                --disableYarnAudit
+                --disableNodeAudit
+            ''',
+            odcInstallation: "${DCNAME}"
+        )
+
+        dependencyCheckPublisher(
+            pattern: "**/dependency-check-report-${env.BUILD_NUMBER}.xml"
+        )
+    }
+}
 
 
         stage('Docker Build'){
