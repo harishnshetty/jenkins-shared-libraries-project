@@ -1,7 +1,21 @@
 def call() {
-    sh "git config user.name \"${env.gitUserName}\""
-    sh "git config user.email \"${env.gitUserEmail}\""
-    sh "git add ."
-    sh "git commit -m \"Done by jenkins pipeline ${env.BUILD_NUMBER}\""
-    sh "git push https://${env.gitUserConfigName}:${env.gitPassword}@github.com/${env.gitUserName}/${env.gitRepo}.git"
+    withCredentials([
+        usernamePassword(
+            credentialsId: 'github-creds',
+            usernameVariable: 'GIT_USER',
+            passwordVariable: 'GIT_TOKEN'
+        )
+    ]) {
+        sh """
+            git config user.name "${params.gitUserConfigName}"
+            git config user.email "${params.gitUserConfigEmail}"
+
+            git checkout ${params.gitBranch}
+
+            git add .
+            git commit -m "Done by Jenkins pipeline ${env.BUILD_NUMBER}" || echo "No changes"
+
+            git push https://${GIT_USER}:${GIT_TOKEN}@github.com/${params.gitUserName}/${params.gitRepo}.git ${params.gitBranch}
+        """
+    }
 }
