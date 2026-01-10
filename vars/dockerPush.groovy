@@ -1,6 +1,6 @@
 def call() {
-   withDockerRegistry([url: 'https://registry.hub.docker.com', credentialsId: 'dockerhub-token']) {
-        sh "docker login -u ${env.dockerHubUsername} -p ${env.dockerHubPassword}"   
+   withCredentials([usernamePassword(credentialsId: 'dockerhub-token', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+        sh "echo \$DOCKER_PASS | docker login -u \$DOCKER_USER --password-stdin registry.hub.docker.com"
         sh "docker push ${env.dockerHubUsername}/${env.dockerImageName}:latest"
         sh "docker push ${env.dockerHubUsername}/${env.dockerImageName}:${env.BUILD_NUMBER}"
     }
