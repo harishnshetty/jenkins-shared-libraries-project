@@ -32,7 +32,7 @@ pipeline{
         nodejs 'node20'
     }
     environment {
-        SCANNER_HOME=tool 'sonar-scanner'
+        SCANNER_HOME = tool 'sonar-scanner'
         CONTAINER_PORT = 80
         EXPOSE_PORT = 80
     }
