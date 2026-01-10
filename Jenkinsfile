@@ -9,19 +9,34 @@ pipeline{
     parameters {
         choice(name: 'action', choices: 'create\ndelete', description: 'Select action to perform (create/delete).')
         
-        string(name: 'DOCKER_HUB_USERNAME', defaultValue: 'sevenajay', description: 'Docker Hub Username')
-        string(name: 'IMAGE_NAME', defaultValue: 'youtube', description: 'Docker Image Name')
-        
         string(name: 'gitUrl', defaultValue: 'https://github.com/harishnshetty/flipkart-app1.git', description: 'Git URL')
         string(name: 'gitBranch', defaultValue: 'main', description: 'Git Branch')
+
+        string(name: 'projectName', defaultValue: 'flipkart', description: 'Project Name')
+        string(name: 'projectKey', defaultValue: 'flipkart', description: 'Project Key')
+
+        string(name: 'dockerHubUsername', defaultValue: 'harishnshetty', description: 'Docker Hub Username')
+        string(name: 'dockerImageName', defaultValue: 'flipkart-app', description: 'Docker Image Name')
+
+        string(name: 'gitUserConfigName', defaultValue: 'harishn', description: 'Git User Name')
+        string(name: 'gitUserConfigEmail', defaultValue: 'harishn662@gmail.com', description: 'Git User Email')
+        string(name: 'gitUserName', defaultValue: 'harishnshetty', description: 'Git User Name')
+        string(name: 'gitPassword', defaultValue: 'github-token', description: 'Git Password')
+        string(name: 'gitRepo', defaultValue: 'flipkart-app1', description: 'Git Repo')
+
+        string(name: 'slackChannel', defaultValue: '#devosecops_channel', description: 'Slack Channel')
     }
+
     tools{
         jdk 'jdk17'
         nodejs 'node20'
     }
-    // environment {
-    //     SCANNER_HOME=tool 'sonar-scanner'
-    // }
+    environment {
+        SCANNER_HOME=tool 'sonar-scanner'
+        IMAGE_NAME = params.dockerImageName
+        CONTAINER_PORT = 80
+        EXPOSE_PORT = 80
+    }
     stages{
 
         stage('Clean Workspace'){
@@ -36,90 +51,99 @@ pipeline{
                 checkoutGit(params.gitUrl, params.gitBranch)
             }
         }
-//         stage('sonarqube Analysis'){
-//         when { expression { params.action == 'create'}}    
-//             steps{
-//                 sonarqubeAnalysis()
-//             }
-//         }
-//         stage('sonarqube QualitGate'){
-//         when { expression { params.action == 'create'}}    
-//             steps{
-//                 script{
-//                     def credentialsId = 'Sonar-token'
-//                     qualityGate(credentialsId)
-//                 }
-//             }
-//         }
-//         stage('Npm'){
-//         when { expression { params.action == 'create'}}    
-//             steps{
-//                 npmInstall()
-//             }
-//         }
-//         stage('Trivy file scan'){
-//         when { expression { params.action == 'create'}}    
-//             steps{
-//                 trivyFs()
-//             }
-//         }
-//         stage('OWASP FS SCAN') {
-//             steps {
-//                 dependencyCheck additionalArguments: '--scan ./ --disableYarnAudit --disableNodeAudit', odcInstallation: 'DP-Check'
-//                 dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
-//             }
-//         }
-//         stage('Docker Build'){
-//         when { expression { params.action == 'create'}}    
-//             steps{
-//                 script{
-//                    def dockerHubUsername = params.DOCKER_HUB_USERNAME
-//                    def imageName = params.IMAGE_NAME
-                   
-//                    dockerBuild(dockerHubUsername, imageName)
-//                 }
-//             }
-//         }
-//         stage('Trivy iamge'){
-//         when { expression { params.action == 'create'}}    
-//             steps{
-//                 trivyImage()
-//             }
-//         }
-//         stage('Run container'){
-//         when { expression { params.action == 'create'}}    
-//             steps{
-//                 runContainer()
-//             }
-//         }
-//         stage('Remove container'){
-//         when { expression { params.action == 'delete'}}    
-//             steps{
-//                 removeContainer()
-//             }
-//         }
-//         stage('Kube deploy'){
-//         when { expression { params.action == 'create'}}    
-//             steps{
-//                 kubeDeploy()
-//             }
-//         }
-//         stage('kube deleter'){
-//         when { expression { params.action == 'delete'}}    
-//             steps{
-//                 kubeDelete()
-//             }
-//         }
-//     }
-//     post {
-//     always {
-//         echo 'Slack Notifications'
-//         slackSend (
-//             channel: '#channel name',   #change your channel name
-//             color: COLOR_MAP[currentBuild.currentResult],
-//             message: "*${currentBuild.currentResult}:* Job ${env.JOB_NAME} \n build ${env.BUILD_NUMBER} \n More info at: ${env.BUILD_URL}"
-//         )
-//     }
-// }
-}
+        stage('sonarqube Analysis'){
+        when { expression { params.action == 'create'}}    
+            steps{
+                sonarqubeAnalysis(params.projectName, params.projectKey)
+            }
+        }
+        stage('sonarqube QualitGate'){
+        when { expression { params.action == 'create'}}    
+            steps{
+                script{
+                    def credentialsId = 'Sonar-token'
+                    qualityGate(credentialsId)
+                }
+            }
+        }
+        stage('npm install'){
+        when { expression { params.action == 'create'}}    
+            steps{
+                npmInstall()
+            }
+        }
+        
+        stage('Trivy file scan'){
+        when { expression { params.action == 'create'}}    
+            steps{
+                trivyFs()
+            }
+        }
+
+
+        stage('OWASP FS SCAN') {
+            steps {
+                dependencyCheck additionalArguments: '''
+                    --scan . 
+                    --disableYarnAudit 
+                    --disableNodeAudit 
+                ''',
+                odcInstallation: 'dp-check'
+                dependencyCheckPublisher pattern: '**/dependency-check-report-${env.BUILD_NUMBER}.xml'
+            }
+        }
+
+
+        stage('Docker Build'){
+        when { expression { params.action == 'create'}}    
+            steps{
+                dockerBuild()
+            }
+        }
+
+        stage('Trivy Image Scan'){
+        when { expression { params.action == 'create'}}    
+            steps{
+                trivyImage(params.dockerHubUsername, params.dockerImageName)
+            }
+        }
+
+        stage('Docker Push To DockerHub'){
+        when { expression { params.action == 'create'}}    
+            steps{
+                dockerPush(params.dockerHubUsername, params.DockerImageName)
+            }
+        }
+
+        stage('Docker Run Container'){
+        when { expression { params.action == 'create'}}    
+            steps{
+                dockerRun(params.dockerHubUsername, params.DockerImageName)
+            }
+        }
+
+        stage('Updating the k8s Deploymentfile'){
+            steps{
+                updateK8sDeploymentFile()
+            }
+        }
+
+        stage('commit and push to github'){
+            when { expression { params.action == 'create'}}    
+            steps{
+                commitAndPush()
+            }
+        }
+
+    post {
+    always {
+        echo 'Slack Notifications'
+        slackSend (
+            channel: params.slackChannel,
+            color: COLOR_MAP[currentBuild.currentResult],
+            message: "*${currentBuild.currentResult}:* Job ${env.JOB_NAME} \n build ${env.BUILD_NUMBER} \n More info at: ${env.BUILD_URL}"
+                )
+            }
+        }
+    }
 }
