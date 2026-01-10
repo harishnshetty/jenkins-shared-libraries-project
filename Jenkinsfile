@@ -53,10 +53,7 @@ pipeline{
         stage('sonarqube Analysis'){
         when { expression { params.action == 'create'}}    
             steps{
-                sonarqubeAnalysis(
-                    projectName: params.projectName,
-                    projectKey: params.projectKey
-                )
+                sonarqubeAnalysis()
             }
         }
         stage('sonarqube QualitGate'){
