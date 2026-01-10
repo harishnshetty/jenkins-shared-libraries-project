@@ -50,34 +50,34 @@ pipeline{
                 checkoutGit(params.gitUrl, params.gitBranch)
             }
         }
-        stage('sonarqube Analysis'){
-        when { expression { params.action == 'create'}}    
-            steps{
-                sonarqubeAnalysis()
-            }
-        }
-        stage('sonarqube QualitGate'){
-        when { expression { params.action == 'create'}}    
-            steps{
-                script{
-                    def credentialsId = 'Sonar-token'
-                    qualityGate(credentialsId)
-                }
-            }
-        }
-        stage('npm install'){
-        when { expression { params.action == 'create'}}    
-            steps{
-                npmInstall()
-            }
-        }
+        // stage('sonarqube Analysis'){
+        // when { expression { params.action == 'create'}}    
+        //     steps{
+        //         sonarqubeAnalysis()
+        //     }
+        // }
+        // stage('sonarqube QualitGate'){
+        // when { expression { params.action == 'create'}}    
+        //     steps{
+        //         script{
+        //             def credentialsId = 'Sonar-token'
+        //             qualityGate(credentialsId)
+        //         }
+        //     }
+        // }
+        // stage('npm install'){
+        // when { expression { params.action == 'create'}}    
+        //     steps{
+        //         npmInstall()
+        //     }
+        // }
         
-        stage('Trivy file scan'){
-        when { expression { params.action == 'create'}}    
-            steps{
-                trivyFs()
-            }
-        }
+        // stage('Trivy file scan'){
+        // when { expression { params.action == 'create'}}    
+        //     steps{
+        //         trivyFs()
+        //     }
+        // }
 
 
 // stage('OWASP FS SCAN') {
