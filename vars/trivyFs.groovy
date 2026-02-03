@@ -11,7 +11,7 @@ def call() {
       trivy fs \
         --format template \
         --template @trivy_tmp.tpl \
-        -o trivyfs_${env.BUILD_NUMBER}.html \
+        -o reports/trivyfs_${env.BUILD_NUMBER}.html \
         .
     """
 }

@@ -4,4 +4,5 @@ def call(String gitUrl, String gitBranch) {
         branches: [[name: gitBranch]],
         userRemoteConfigs: [[url: gitUrl]]
     ])
+    sh 'mkdir reports'
 }

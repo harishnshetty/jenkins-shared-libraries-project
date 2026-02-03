@@ -1,3 +1,3 @@
 def call() {
-    sh "gitleaks detect --source . -r gitleaks-report.json -f json || true"
+    sh "gitleaks detect --source . -r reports/gitleaks-report.json -f json || true"
 }
