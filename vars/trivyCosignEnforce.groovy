@@ -102,7 +102,7 @@ def call() {
                     ${env.IMAGE_DIGEST}
             fi
 
-            rm -f cosign.key sbom.cdx.json vuln-report.json
+            rm -f sbom.cdx.json vuln-report.json
             echo "✅ Image signed & SBOM attested using digest"
         """
     }
