@@ -33,57 +33,77 @@
 //     """
 //   }
 // }
-def call(Map config) {
+def call() {
     withCredentials([
-        file(credentialsId: 'COSIGN_PRIVATE_KEY', variable: 'COSIGN_KEY_FILE')
+        file(credentialsId: 'COSIGN_PRIVATE_KEY', variable: 'COSIGN_KEY_FILE'),
+        string(credentialsId: 'COSIGN_PASSWORD', variable: 'COSIGN_PASSWORD')
     ]) {
-        withCredentials([
-            string(credentialsId: 'COSIGN_PASSWORD', variable: 'COSIGN_PASSWORD')
-        ]) {
-            sh """
-                set -e
-                export COSIGN_EXPERIMENTAL=1
+        sh """
+            set -e
+            export COSIGN_EXPERIMENTAL=1
 
-                echo "🔐 Setting up cosign..."
-                cp "\$COSIGN_KEY_FILE" cosign.key
-                chmod 600 cosign.key
+            if [ -z "${env.IMAGE_DIGEST}" ]; then
+                echo "❌ IMAGE_DIGEST not found. Did dockerPush.groovy run?"
+                exit 1
+            fi
 
-                if head -1 cosign.key | grep -q "ENCRYPTED"; then
-                    echo "🔐 Key is encrypted"
-                    NEED_PASSWORD=true
-                else
-                    echo "🔓 Key is not encrypted"
-                    NEED_PASSWORD=false
-                fi
+            echo "🔐 Using image digest: ${env.IMAGE_DIGEST}"
 
-                echo "🔍 Generating SBOM for: ${config.image}"
-                trivy image --format cyclonedx --output sbom.cdx.json ${config.image}
+            echo "🔐 Setting up cosign..."
+            cp "\$COSIGN_KEY_FILE" cosign.key
+            chmod 600 cosign.key
 
-                echo "🧾 Attesting SBOM..."
-                if [ "\$NEED_PASSWORD" = "true" ]; then
-                    echo "\$COSIGN_PASSWORD" | cosign attest \\
-                        --key cosign.key \\
-                        --predicate sbom.cdx.json \\
-                        --type cyclonedx \\
-                        ${config.image}
-                else
-                    cosign attest \\
-                        --key cosign.key \\
-                        --predicate sbom.cdx.json \\
-                        --type cyclonedx \\
-                        ${config.image}
-                fi
+            if head -1 cosign.key | grep -q "ENCRYPTED"; then
+                echo "🔐 Key is encrypted"
+                NEED_PASSWORD=true
+            else
+                echo "🔓 Key is not encrypted"
+                NEED_PASSWORD=false
+            fi
 
-                echo "✍️ Signing image..."
-                if [ "\$NEED_PASSWORD" = "true" ]; then
-                    echo "\$COSIGN_PASSWORD" | cosign sign --key cosign.key ${config.image}
-                else
-                    cosign sign --key cosign.key ${config.image}
-                fi
+            echo "📦 Generating SBOM (CycloneDX)..."
+            trivy image \
+              --format cyclonedx \
+              --output sbom.cdx.json \
+              ${env.IMAGE_DIGEST}
 
-                rm -f cosign.key sbom.cdx.json
-                echo "✅ Image signed & SBOM attested"
-            """
-        }
+            echo "🛡️ Running vulnerability scan..."
+            trivy image \
+              --scanners vuln \
+              --severity HIGH,CRITICAL \
+              --ignore-unfixed \
+              --format json \
+              --output vuln-report.json \
+              ${env.IMAGE_DIGEST}
+
+            echo "🧾 Attesting SBOM..."
+            if [ "\$NEED_PASSWORD" = "true" ]; then
+                echo "\$COSIGN_PASSWORD" | cosign attest \
+                    --key cosign.key \
+                    --predicate sbom.cdx.json \
+                    --type cyclonedx \
+                    ${env.IMAGE_DIGEST}
+            else
+                cosign attest \
+                    --key cosign.key \
+                    --predicate sbom.cdx.json \
+                    --type cyclonedx \
+                    ${env.IMAGE_DIGEST}
+            fi
+
+            echo "✍️ Signing image..."
+            if [ "\$NEED_PASSWORD" = "true" ]; then
+                echo "\$COSIGN_PASSWORD" | cosign sign \
+                    --key cosign.key \
+                    ${env.IMAGE_DIGEST}
+            else
+                cosign sign \
+                    --key cosign.key \
+                    ${env.IMAGE_DIGEST}
+            fi
+
+            rm -f cosign.key sbom.cdx.json vuln-report.json
+            echo "✅ Image signed & SBOM attested using digest"
+        """
     }
 }
