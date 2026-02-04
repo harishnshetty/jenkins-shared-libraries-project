@@ -35,39 +35,58 @@
 // }
 def call(Map config) {
     withCredentials([
-        file(credentialsId: 'COSIGN_PRIVATE_KEY', variable: 'COSIGN_KEY_FILE')
+        file(credentialsId: 'COSIGN_PRIVATE_KEY', variable: 'COSIGN_KEY_FILE'),
+        string(credentialsId: 'COSIGN_PASSWORD', variable: 'COSIGN_PASSWORD')
     ]) {
         sh """
             set -e
             export COSIGN_EXPERIMENTAL=1
 
-            echo "🔐 Using cosign private key"
+            echo "🔐 Setting up cosign..."
             cp "\$COSIGN_KEY_FILE" cosign.key
             chmod 600 cosign.key
             
-            echo "🔍 Getting image digest..."
-            DIGEST=\$(docker inspect ${config.image} --format='{{index .RepoDigests 0}}' | cut -d'@' -f2)
-            IMAGE_WITH_DIGEST="${config.image%@*}@\$DIGEST"
+            # Test if key needs password
+            if head -1 cosign.key | grep -q "ENCRYPTED"; then
+                echo "🔐 Key is encrypted, using password"
+                HAS_PASSWORD=true
+            else
+                echo "🔐 Key is not encrypted"
+                HAS_PASSWORD=false
+            fi
             
-            echo "🔍 Generating SBOM using Trivy for image: \$IMAGE_WITH_DIGEST"
-            trivy image \\
-                --format cyclonedx \\
-                --output sbom.cdx.json \\
-                \$IMAGE_WITH_DIGEST
-
-            echo "🧾 Attesting SBOM"
-            echo "" | cosign attest \\
-                --key cosign.key \\
-                --predicate sbom.cdx.json \\
-                --type cyclonedx \\
-                \$IMAGE_WITH_DIGEST
-
-            echo "✍️ Signing image"
-            echo "" | cosign sign \\
-                --key cosign.key \\
-                \$IMAGE_WITH_DIGEST
-                
-            echo "🧹 Cleanup"
+            echo "🔍 Generating SBOM for: ${config.image}"
+            trivy image --format cyclonedx --output sbom.cdx.json ${config.image}
+            
+            echo "🧾 Attesting SBOM..."
+            if [ "\$HAS_PASSWORD" = "true" ]; then
+                echo "\$COSIGN_PASSWORD" | cosign attest \\
+                    --key cosign.key \\
+                    --predicate sbom.cdx.json \\
+                    --type cyclonedx \\
+                    ${config.image}
+            else
+                echo "" | cosign attest \\
+                    --key cosign.key \\
+                    --predicate sbom.cdx.json \\
+                    --type cyclonedx \\
+                    ${config.image}
+            fi
+            
+            echo "✍️ Signing image..."
+            if [ "\$HAS_PASSWORD" = "true" ]; then
+                echo "\$COSIGN_PASSWORD" | cosign sign \\
+                    --key cosign.key \\
+                    ${config.image}
+            else
+                echo "" | cosign sign \\
+                    --key cosign.key \\
+                    ${config.image}
+            fi
+            
+            echo "✅ SBOM attested and image signed successfully"
+            
+            echo "🧹 Cleaning up..."
             rm -f cosign.key sbom.cdx.json
         """
     }
