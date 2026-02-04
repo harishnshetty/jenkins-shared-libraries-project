@@ -1,3 +1,13 @@
 def call() {
-    sh "sed -i 's|image: .*|image: ${env.dockerHubUsername}/${env.dockerImageName}:${env.BUILD_NUMBER}|' k8s-80/deployment.yml"
+    withCredentials([usernamePassword(credentialsId: 'github-token', usernameVariable: 'gitUserConfigName', passwordVariable: 'gitUserConfigEmail')]) {
+    sh """
+    git config --global user.name ${env.gitUserConfigName}
+    git config --global user.email ${env.gitUserConfigEmail}
+    git checkout ${env.BRANCH}
+    sed -i 's|image: .*|image: ${env.dockerHubUsername}/${env.dockerImageName}:${env.BUILD_NUMBER}|' ${env.MANIFESTFILENAME}
+    git add ${env.MANIFESTFILENAME} || true
+    git commit -m "${env.BUILD_NUMBER}" || true
+    git push origin ${env.BRANCH} || true
+    """
+    }
 }
