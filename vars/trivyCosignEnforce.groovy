@@ -45,23 +45,27 @@ def call(Map config) {
             cp "\$COSIGN_KEY_FILE" cosign.key
             chmod 600 cosign.key
             
-            echo "🔍 Generating SBOM using Trivy for image: ${config.image}"
-            trivy image \
-                --format cyclonedx \
-                --output sbom.cdx.json \
-                ${config.image}
+            echo "🔍 Getting image digest..."
+            DIGEST=\$(docker inspect ${config.image} --format='{{index .RepoDigests 0}}' | cut -d'@' -f2)
+            IMAGE_WITH_DIGEST="${config.image%@*}@\$DIGEST"
+            
+            echo "🔍 Generating SBOM using Trivy for image: \$IMAGE_WITH_DIGEST"
+            trivy image \\
+                --format cyclonedx \\
+                --output sbom.cdx.json \\
+                \$IMAGE_WITH_DIGEST
 
             echo "🧾 Attesting SBOM"
-            cosign attest \
-                --key cosign.key \
-                --predicate sbom.cdx.json \
-                --type cyclonedx \
-                ${config.image}
+            echo "" | cosign attest \\
+                --key cosign.key \\
+                --predicate sbom.cdx.json \\
+                --type cyclonedx \\
+                \$IMAGE_WITH_DIGEST
 
             echo "✍️ Signing image"
-            cosign sign \
-                --key cosign.key \
-                ${config.image}
+            echo "" | cosign sign \\
+                --key cosign.key \\
+                \$IMAGE_WITH_DIGEST
                 
             echo "🧹 Cleanup"
             rm -f cosign.key sbom.cdx.json
