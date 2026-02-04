@@ -69,25 +69,23 @@ def call() {
 
             echo "🛡️ Running vulnerability scan..."
             trivy image \
-              --scanners vuln \
-              --severity HIGH,CRITICAL \
               --ignore-unfixed \
-              --format json \
-              --output vuln-report.json \
+              --format cosign-vuln \
+              --output vuln.json \
               ${env.IMAGE_DIGEST}
 
             echo "🧾 Attesting SBOM..."
             if [ "\$NEED_PASSWORD" = "true" ]; then
                 echo "\$COSIGN_PASSWORD" | cosign attest \
                     --key cosign.key \
-                    --predicate sbom.cdx.json \
-                    --type cyclonedx \
+                    --type vuln \
+                    --predicate vuln.json \
                     ${env.IMAGE_DIGEST}
             else
                 cosign attest \
                     --key cosign.key \
-                    --predicate sbom.cdx.json \
-                    --type cyclonedx \
+                    --type vuln \
+                    --predicate vuln.json \
                     ${env.IMAGE_DIGEST}
             fi
 
@@ -102,7 +100,7 @@ def call() {
                     ${env.IMAGE_DIGEST}
             fi
 
-            rm -f sbom.cdx.json vuln-report.json
+            rm -f cosign.key cosign.pub
             echo "✅ Image signed & SBOM attested using digest"
         """
     }
