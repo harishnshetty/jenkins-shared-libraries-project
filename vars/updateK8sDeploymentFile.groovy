@@ -1,13 +1,15 @@
 def call() {
-    withCredentials([usernamePassword(credentialsId: 'github-token', usernameVariable: 'gitUserConfigName', passwordVariable: 'gitUserConfigEmail')]) {
-    sh """
-    git config --local user.name ${env.gitUserConfigName}
-    git config --local user.email ${env.gitUserConfigEmail}
-    git checkout ${env.BRANCH}
-    sed -i 's|image: .*|image: ${env.dockerHubUsername}/${env.dockerImageName}:${env.BUILD_NUMBER}|' ${env.MANIFESTFILENAME}
-    git add ${env.MANIFESTFILENAME} || true
-    git commit -m "${env.BUILD_NUMBER}" || true
-    git push origin ${env.BRANCH} || true
-    """
+    withCredentials([usernamePassword(credentialsId: 'github-token', usernameVariable: 'GIT_USER', passwordVariable: 'GIT_TOKEN')]) {
+        sh '''
+            git config --local user.name "$gitUserConfigName"
+            git config --local user.email "$gitUserConfigEmail"
+            git config --local credential.helper "!f() { echo username=$GIT_USER; echo password=$GIT_TOKEN; }; f"
+            
+            git checkout "$BRANCH"
+            sed -i "s|image: .*|image: $dockerHubUsername/$dockerImageName:$BUILD_NUMBER|" "$MANIFESTFILENAME"
+            git add "$MANIFESTFILENAME"
+            git commit -m "$BUILD_NUMBER"
+            git push origin "$BRANCH"
+        '''
     }
 }
