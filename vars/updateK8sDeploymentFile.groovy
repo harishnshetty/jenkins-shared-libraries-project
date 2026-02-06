@@ -10,6 +10,7 @@ def call() {
             git add "$MANIFESTFILENAME"
             git commit -m "$BUILD_NUMBER"
             git push origin "$BRANCH"
+            git checkout "$gitBranch"
         '''
     }
 }
