@@ -1,14 +1,30 @@
 def call() {
+
+    // Run OWASP Dependency Check scan
     dependencyCheck(
         odcInstallation: 'dp-check',
         additionalArguments: '''
             --scan .
+            --format XML
+            --format HTML
+            --out .
             --disableYarnAudit
             --disableNodeAudit
         '''
     )
 
+    // Publish results (Jenkins Trend Dashboard)
     dependencyCheckPublisher(
-        pattern: '**/dependency-check-report-*.xml'
+        pattern: '**/dependency-check-report.xml'
     )
+
+    // Publish HTML report inside Jenkins
+    publishHTML([
+        allowMissing: false,
+        alwaysLinkToLastBuild: true,
+        keepAll: true,
+        reportDir: '.',
+        reportFiles: 'dependency-check-report.html',
+        reportName: 'OWASP Dependency Check Report'
+    ])
 }
