@@ -1,4 +1,4 @@
-def call(buildStatus, emailAddress) {
+def call(String buildStatus) {
 
     def buildUser = currentBuild.getBuildCauses('hudson.model.Cause$UserIdCause')[0]?.userId ?: 'GitHub User'
 
