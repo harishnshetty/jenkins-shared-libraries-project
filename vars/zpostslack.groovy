@@ -1,16 +1,16 @@
 def call() {
-    def COLOR_MAP = [
-        'FAILURE' : 'danger',
-        'SUCCESS' : 'good',
-        'UNSTABLE': 'warning',
-        'ABORTED' : 'warning'
-    ]
-    
-    echo "Slack Notification"
+
+    def buildStatus = currentBuild.currentResult ?: 'SUCCESS'
+
     slackSend(
         channel: params.slackChannel,
-        color: COLOR_MAP[currentBuild.currentResult] ?: 'warning',
-        botUser: true,
-        message: "*${currentBuild.currentResult}:* Job ${env.JOB_NAME} \n build ${env.BUILD_NUMBER} \n More info at: ${env.BUILD_URL}"
-    )   
+        color: buildStatus == 'SUCCESS' ? 'good' : 'danger',
+        message: """
+                Job: ${env.JOB_NAME}
+                Build: #${env.BUILD_NUMBER}
+                Status: ${buildStatus}
+
+                ${env.BUILD_URL}
+                """
+    )
 }
