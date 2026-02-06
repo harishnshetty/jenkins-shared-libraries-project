@@ -17,7 +17,7 @@ def call() {
 
     try {
         timeout(time: 10, unit: 'MINUTES') {
-            input message: 'Approve to update the k8s deployment frontend file'
+            input message: "Approve to update the k8s deployment ${env.MANIFESTFILENAME} file"
         }
 
         env.APPROVED = "true"
@@ -25,7 +25,7 @@ def call() {
         slackSend(
             channel: params.slackChannel,
             color: 'good',
-            message: "✅ Deployment Approved - Build #${env.BUILD_NUMBER}"
+            message: "✅ Deployment Approved - ${env.MANIFESTFILENAME} - Build #${env.BUILD_NUMBER}"
         )
 
     } catch (err) {
@@ -36,7 +36,7 @@ def call() {
         slackSend(
             channel: params.slackChannel,
             color: 'danger',
-            message: "❌ Deployment NOT approved (timeout/abort) - Build #${env.BUILD_NUMBER}"
+            message: "❌ Deployment NOT approved (timeout/abort) - ${env.MANIFESTFILENAME} - Build #${env.BUILD_NUMBER}"
         )
     }
 }
