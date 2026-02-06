@@ -1,5 +1,9 @@
 def call() {
-    withCredentials([usernamePassword(credentialsId: 'github-token', usernameVariable: 'GIT_USER', passwordVariable: 'GIT_TOKEN')]) {
+    withCredentials([usernamePassword(
+        credentialsId: 'github-token',
+        usernameVariable: 'GIT_USER',
+        passwordVariable: 'GIT_TOKEN'
+                                    )]) {
         sh '''
             git config --local user.name "$gitUserConfigName"
             git config --local user.email "$gitUserConfigEmail"

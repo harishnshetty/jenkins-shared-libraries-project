@@ -102,6 +102,9 @@ def call() {
 
             rm -f cosign.key cosign.pub
             echo "✅ Image signed & SBOM attested using digest"
+
+            mv sbom.cdx.json reports/
+            mv vuln.json reports/
         """
     }
 }

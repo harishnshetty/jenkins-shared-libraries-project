@@ -19,7 +19,7 @@ def call(String buildStatus, String emailAddress) {
         to: "${emailAddress}",
         from: "${emailAddress}",
         mimeType: 'text/html',
-        attachmentsPattern: 'reports/gitleaks-report.json'
+        attachmentsPattern: 'reports/*.json reports/*.html'
     )
 
 }

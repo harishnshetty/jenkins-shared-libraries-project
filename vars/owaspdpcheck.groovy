@@ -6,7 +6,7 @@ def call() {
         additionalArguments: '''
             --scan .
             --format XML
-            --out .
+            --out reports
             --disableYarnAudit
             --disableNodeAudit
         '''
@@ -15,7 +15,7 @@ def call() {
 
     // Publish results (Jenkins Trend Dashboard)
     dependencyCheckPublisher(
-        pattern: '**/dependency-check-report.xml'
+        pattern: 'reports/dependency-check-report.xml'
     )
 
     // Publish HTML report inside Jenkins
@@ -24,7 +24,7 @@ def call() {
     //     alwaysLinkToLastBuild: true,
     //     keepAll: true,
     //     reportDir: '.',
-    //     reportFiles: 'dependency-check-report.html',
+    //     reportFiles: 'reports/dependency-check-report.html',
     //     reportName: 'OWASP Dependency Check Report'
     // ])
 }
