@@ -6,12 +6,12 @@ def call() {
         additionalArguments: '''
             --scan .
             --format XML
-            --format HTML
             --out .
             --disableYarnAudit
             --disableNodeAudit
         '''
     )
+    // --format HTML
 
     // Publish results (Jenkins Trend Dashboard)
     dependencyCheckPublisher(
@@ -19,12 +19,12 @@ def call() {
     )
 
     // Publish HTML report inside Jenkins
-    publishHTML([
-        allowMissing: false,
-        alwaysLinkToLastBuild: true,
-        keepAll: true,
-        reportDir: '.',
-        reportFiles: 'dependency-check-report.html',
-        reportName: 'OWASP Dependency Check Report'
-    ])
+    // publishHTML([
+    //     allowMissing: false,
+    //     alwaysLinkToLastBuild: true,
+    //     keepAll: true,
+    //     reportDir: '.',
+    //     reportFiles: 'dependency-check-report.html',
+    //     reportName: 'OWASP Dependency Check Report'
+    // ])
 }
