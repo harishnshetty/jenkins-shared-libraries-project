@@ -1,13 +1,53 @@
 # 3tier App Architecture with Jenkins Shared Library DevSecOps Pipeline.
 
+## 3tier App Architecture Project Repo:
+[https://github.com/harishnshetty/3tier-app-architecture-project.git](https://github.com/harishnshetty/3tier-app-architecture-project.git)
+
+## Jenkins shared libraries repo: 
+[https://github.com/harishnshetty/jenkins-shared-libraries-project.git](https://github.com/harishnshetty/jenkins-shared-libraries-project.git)
+
 - Frontend
 - Backend
 - Database
 
+
+
+
+cosign generate-key-pair
+
+password: 1234
+
+
+
+```bash
+
+docker build -t harishnshetty/cosign-demo:latest .
+
+docker push harishnshetty/cosign-demo:latest
+
+trivy image --ignore-unfixed --format cosign-vuln --output vuln.json harishnshetty/cosign-demo@sha256:a3d368a56d2a70311bf7b3971ca2345dbef6ba0a54251f33a8a7757966ec454f
+
+# Attest
+
+cosign attest --key cosign.key --type vuln --predicate vuln.json harishnshetty/cosign-demo@sha256:a3d368a56d2a70311bf7b3971ca2345dbef6ba0a54251f33a8a7757966ec454f
+
+
+cosign sign --key cosign.key harishnshetty/cosign-demo@sha256:a3d368a56d2a70311bf7b3971ca2345dbef6ba0a54251f33a8a7757966ec454f
+
+# Verify
+
+cosign verify --key cosign.pub harishnshetty/cosign-demo@sha256:a3d368a56d2a70311bf7b3971ca2345dbef6ba0a54251f33a8a7757966ec454f
+
+
+# Verify Attestation
+cosign verify-attestation --key cosign.pub --type vuln harishnshetty/cosign-demo@sha256:a3d368a56d2a70311bf7b3971ca2345dbef6ba0a54251f33a8a7757966ec454f
+```
+
+
 ## For more projects, check out  
 [https://harishnshetty.github.io/projects.html](https://harishnshetty.github.io/projects.html)
 
-[![Video Tutorial](https://github.com/harishnshetty/image-data-project/blob/cc0a165209bb710d2f3dffbd5a81b448c2abfd1c/sharedlibraries.jpg)](https://youtu.be/KwKtMHBQXk4)
+[![Video Tutorial](https://github.com/harishnshetty/image-data-project/blob/cc0a165209bb710d2f3dffbd5a81b448c2abfd1c/sharedlibraries.jpg)](https://youtu.be/NVqom2oZ40k)
 
 
 <!-- ## Flipkart Clone Sample Image
@@ -619,7 +659,7 @@ Password: encrypted-password
 
 ## OWASP ZAPROXY
 
-[![Video Tutorial](https://github.com/harishnshetty/image-data-project/blob/d13e0ad9f2fc91499853cc8624b3c2d50f8f2e88/flipkart3.jpg)](https://youtu.be/KwKtMHBQXk4)
+[![Video Tutorial](https://github.com/harishnshetty/image-data-project/blob/d13e0ad9f2fc91499853cc8624b3c2d50f8f2e88/flipkart3.jpg)](https://youtu.be/NVqom2oZ40k)
 
 
 ##  Delete EKS Cluster (Cleanup) finally u done a project 
