@@ -3,12 +3,28 @@
 ## 3tier App Architecture Project Repo:
 [https://github.com/harishnshetty/3tier-app-architecture-project.git](https://github.com/harishnshetty/3tier-app-architecture-project.git)
 
-## Jenkins shared libraries repo: 
-[https://github.com/harishnshetty/jenkins-shared-libraries-project.git](https://github.com/harishnshetty/jenkins-shared-libraries-project.git)
 
-- Frontend
-- Backend
-- Database
+## Jenkins shared libraries Main repo: 
+[https://github.com/harishnshetty/jenkins-shared-libraries-project.git](https://github.com/harishnshetty/jenkins-shared-libraries-project.git)
+---
+
+- jenkins-server [https://github.com/harishnshetty/3-tier-jenkins-shared-libraries-devsecops-project/tree/jenkins-terraform?tab=readme-ov-file]
+---
+
+- Frontend [https://github.com/harishnshetty/3-tier-jenkins-shared-libraries-devsecops-project/tree/frontend?tab=readme-ov-file]
+---
+
+- Backend [https://github.com/harishnshetty/3-tier-jenkins-shared-libraries-devsecops-project/tree/backend?tab=readme-ov-file]
+---
+
+- Database [https://github.com/harishnshetty/3-tier-jenkins-shared-libraries-devsecops-project/tree/database?tab=readme-ov-file]
+---
+
+- Deployments [https://github.com/harishnshetty/3-tier-jenkins-shared-libraries-devsecops-project/tree/deployment?tab=readme-ov-file]
+---
+
+- eks-terraform [https://github.com/harishnshetty/3-tier-jenkins-shared-libraries-devsecops-project/tree/eks-terraform?tab=readme-ov-file]
+
 
 
 
